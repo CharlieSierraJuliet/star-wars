@@ -5,10 +5,13 @@ function App() {
 
   const[movies,setMovies]=useState([])
   const [isLoading,setIsLoading]=useState(false)
+  const [error,setError]=useState(null)
  const fetchMovies=()=>{
   setIsLoading(true)
+  setError(null)
   fetch('https://swapi.dev/api/films/')
   .then((response)=>{
+    if(!response.ok) throw new Error("Something went wrong")
       return response.json();
     }
   )
@@ -20,9 +23,14 @@ function App() {
         openingText: element.opening_crawl
       }
     })
+    
     setMovies(featuredFilms)
-    setIsLoading(false)
   })
+  .catch(error=>{
+    setError(error.message)
+  })
+  setIsLoading(false)
+
  }
  
 
@@ -34,8 +42,9 @@ function App() {
    
       <section>
       {!isLoading && movies.length>0 && <MovieList movies={movies} />}
-    {!isLoading && movies.length===0 && <p>No movies to display!</p>}
+    {!isLoading && !error && movies.length===0 && <p>No movies to display!</p>}
     {isLoading && <p>Loading...</p>}
+    {!isLoading && error && <p>{error}</p>}
       </section>
     </React.Fragment>
   );
